@@ -8,6 +8,7 @@ namespace RubricaContatti
     public partial class Form1 : Form
     {
         List<Contatto> Contatti = new List<Contatto>();
+        string fileName = "contacts.txt";
         public Form1()
         {
             InitializeComponent();
@@ -58,6 +59,9 @@ namespace RubricaContatti
             {
                 Contatti.Remove(Contatti[lsbContatti.SelectedIndex]);
                 ricaricaListBox("");
+                txtName.Text = "";
+                txtTelefono.Text = "";
+                txtResearch.Text = "";
             }
         }
 
@@ -88,7 +92,7 @@ namespace RubricaContatti
                 MessageBox.Show("Seleziona un contatto da modificare");
             else
             {
-                bool campi = controlloCampi(txtTelefono.Name);
+                bool campi = controlloCampi(txtTelefono.Text);
                 if (campi)
                 {
                     Contatti[lsbContatti.SelectedIndex].Nominativo = txtName.Text;
@@ -96,6 +100,7 @@ namespace RubricaContatti
                     ricaricaListBox("");
                     txtName.Text = "";
                     txtTelefono.Text = "";
+                    txtResearch.Text = "";
                 }
                 else
                 {
@@ -120,7 +125,7 @@ namespace RubricaContatti
 
         private void btnSave_Click(object sender, EventArgs e)
         {
-            StreamWriter sw = new StreamWriter("contacts.txt");
+            StreamWriter sw = new StreamWriter(fileName);
             foreach (var contatto in Contatti)
             {
                 sw.WriteLine(contatto.ToString());
@@ -130,18 +135,24 @@ namespace RubricaContatti
 
         private void btnLoad_Click(object sender, EventArgs e)
         {
-            StreamReader sr = new StreamReader("contacts.txt");
-            string[] datas;
-            while (!sr.EndOfStream)
+            if (File.Exists(fileName))
             {
-                datas = sr.ReadLine().Split('-');
-                if (controlloCampi(datas[1].Trim()))
+                StreamReader sr = new StreamReader("contacts.txt");
+                string[] datas;
+                while (!sr.EndOfStream)
                 {
-                    Contatto c = new Contatto(datas[0].Trim(), datas[1].Trim());
-                    Contatti.Add(c);
+                    datas = sr.ReadLine().Split('-');
+                    if (controlloCampi(datas[1].Trim()))
+                    {
+                        Contatto c = new Contatto(datas[0].Trim(), datas[1].Trim());
+                        Contatti.Add(c);
+                    }
                 }
+                ricaricaListBox("");
+                sr.Close();
             }
-            ricaricaListBox("");
+            else
+                MessageBox.Show("File non trovato");
         }
 
         private void txtTelefono_KeyPress(object sender, KeyPressEventArgs e)
